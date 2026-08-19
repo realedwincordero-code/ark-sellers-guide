@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>ARK Real Estate — Sellers Guide by Edwin Cordero</title>
+<meta name="description" content="The complete guide to selling your home in Puerto Rico — presented by Edwin Cordero, ARK Real Estate.">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="512x512" href="icon-512.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="ARK Real Estate — Sellers Guide by Edwin Cordero">
+<meta property="og:description" content="The complete guide to selling your home in Puerto Rico — presented by Edwin Cordero, ARK Real Estate.">
+<meta property="og:image" content="pages/page-01.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preload" as="image" href="pages/page-01.jpg">
+<link rel="preload" as="image" href="pages/page-02.jpg">
+<link rel="preload" as="image" href="pages/page-03.jpg">
+<style>
+  :root{ --w:425px; --h:550px; }
+  *{ margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html,body{ height:100%; }
+  body{ background:#0d0c0c; font-family:Helvetica,Arial,sans-serif; overflow:hidden;
+        display:flex; flex-direction:column; align-items:center; justify-content:center;
+        overscroll-behavior:none; touch-action:manipulation; }
+  .brand{ color:#B5B5B8; letter-spacing:.42em; text-indent:.42em; font-size:12px;
+          margin-bottom:20px; text-align:center; }
+  .brand b{ color:#fff; font-weight:600; letter-spacing:.42em; }
+  .hint{ color:#77756f; font-size:11px; letter-spacing:.22em; text-indent:.22em; margin-top:22px; text-align:center; }
+  .nav{ margin-top:14px; display:flex; gap:24px; align-items:center; }
+  .nav button{ background:none; border:1px solid #504D4A; color:#B5B5B8; width:42px; height:42px;
+               border-radius:50%; font-size:17px; cursor:pointer; transition:all .25s; }
+  .nav button:active, .nav button:hover{ border-color:#fff; color:#fff; }
+  .nav .pg{ color:#77756f; font-size:11.5px; letter-spacing:.18em; min-width:72px; text-align:center; }
+
+  /* ---------- desktop book ---------- */
+  .stage{ position:relative; perspective:2600px; }
+  .book{ position:relative; width:calc(var(--w)*2); height:var(--h);
+         transform-style:preserve-3d; transition:transform .8s cubic-bezier(.4,.1,.2,1); }
+  .book.closed-front{ transform:translateX(calc(var(--w)/-2)); }
+  .book.closed-back{ transform:translateX(calc(var(--w)/2)); }
+  .sheet{ position:absolute; top:0; left:50%; width:var(--w); height:var(--h);
+          transform-style:preserve-3d; transform-origin:left center;
+          transition:transform 1s cubic-bezier(.36,.05,.3,1); }
+  .face{ position:absolute; inset:0; backface-visibility:hidden; overflow:hidden;
+         background:#111 center/cover no-repeat; }
+  .face.back{ transform:rotateY(180deg); }
+  .face::after{ content:''; position:absolute; top:0; bottom:0; width:46px; pointer-events:none; }
+  .face.front::after{ left:0; background:linear-gradient(90deg, rgba(0,0,0,.32), rgba(0,0,0,0)); }
+  .face.back::after{ right:0; background:linear-gradient(270deg, rgba(0,0,0,.32), rgba(0,0,0,0)); }
+  .sheet.flipped{ transform:rotateY(-180deg); }
+  .clickzone{ position:absolute; top:0; bottom:0; width:50%; cursor:pointer; z-index:500; }
+  .clickzone.left{ left:0; } .clickzone.right{ right:0; }
+
+  /* ---------- mobile swipe ---------- */
+  .mstage{ display:none; position:relative; overflow:hidden; border-radius:2px;
+           box-shadow:0 10px 40px rgba(0,0,0,.6); }
+  .mtrack{ display:flex; height:100%; transition:transform .45s cubic-bezier(.3,.1,.25,1); will-change:transform; }
+  .mpage{ flex:0 0 100%; height:100%; background:#111 center/cover no-repeat; }
+  .mdots{ display:none; margin-top:16px; gap:5px; justify-content:center; flex-wrap:wrap; max-width:86vw; }
+  .mdots span{ width:6px; height:6px; border-radius:50%; background:#3a3836; transition:background .3s; }
+  .mdots span.on{ background:#B5B5B8; }
+
+  body.mobile .stage{ display:none; }
+  body.mobile .mstage{ display:block; }
+  body.mobile .mdots{ display:flex; }
+  body.mobile .hint{ margin-top:14px; }
+  body.mobile .brand{ margin-bottom:14px; font-size:10.5px; }
+</style>
+</head>
+<body>
+  <div class="brand"><b>ARK</b>&nbsp;&nbsp;REAL ESTATE&nbsp;&nbsp;·&nbsp;&nbsp;SELLERS GUIDE</div>
+
+  <div class="stage">
+    <div class="book" id="book"></div>
+    <div class="clickzone left" onclick="prev()"></div>
+    <div class="clickzone right" onclick="next()"></div>
+  </div>
+
+  <div class="mstage" id="mstage"><div class="mtrack" id="mtrack"></div></div>
+  <div class="mdots" id="mdots"></div>
+
+  <div class="nav">
+    <button onclick="prev()" aria-label="Previous">&#8249;</button>
+    <div class="pg" id="pg"></div>
+    <button onclick="next()" aria-label="Next">&#8250;</button>
+  </div>
+  <div class="hint" id="hint">CLICK OR USE ARROW KEYS TO TURN THE PAGE</div>
+
+<script>
+const PAGES = ["pages/page-01.jpg","pages/page-02.jpg","pages/page-03.jpg","pages/page-04.jpg","pages/page-05.jpg","pages/page-06.jpg","pages/page-07.jpg","pages/page-08.jpg","pages/page-09.jpg","pages/page-10.jpg","pages/page-11.jpg","pages/page-12.jpg","pages/page-13.jpg","pages/page-14.jpg","pages/page-15.jpg","pages/page-16.jpg"];
+const nSheets = PAGES.length / 2;
+let isMobile = false;
+let pos = 0;    // desktop: sheets flipped
+let mIdx = 0;   // mobile: current page index
+
+/* ----- desktop book ----- */
+const book = document.getElementById('book');
+for (let i = 0; i < nSheets; i++) {
+  const s = document.createElement('div');
+  s.className = 'sheet'; s.id = 'sheet' + i;
+  const f = document.createElement('div'); f.className = 'face front';
+  f.style.backgroundImage = 'url(' + PAGES[2*i] + ')';
+  const b = document.createElement('div'); b.className = 'face back';
+  b.style.backgroundImage = 'url(' + PAGES[2*i+1] + ')';
+  s.appendChild(f); s.appendChild(b);
+  book.appendChild(s);
+}
+function zorder(){
+  for (let i = 0; i < nSheets; i++)
+    document.getElementById('sheet' + i).style.zIndex = (i < pos) ? i : (nSheets - i);
+}
+function renderBook(){
+  for (let i = 0; i < nSheets; i++)
+    document.getElementById('sheet' + i).classList.toggle('flipped', i < pos);
+  book.className = 'book' + (pos === 0 ? ' closed-front' : (pos === nSheets ? ' closed-back' : ''));
+}
+
+/* ----- mobile carousel ----- */
+const mtrack = document.getElementById('mtrack');
+const mdots = document.getElementById('mdots');
+PAGES.forEach((p, i) => {
+  const d = document.createElement('div');
+  d.className = 'mpage';
+  d.style.backgroundImage = 'url(' + p + ')';
+  mtrack.appendChild(d);
+  const dot = document.createElement('span');
+  if (i === 0) dot.className = 'on';
+  mdots.appendChild(dot);
+});
+function renderMobile(){
+  mtrack.style.transform = 'translateX(-' + (mIdx * 100) + '%)';
+  Array.from(mdots.children).forEach((d, i) => d.classList.toggle('on', i === mIdx));
+}
+
+/* ----- shared nav ----- */
+function counter(){
+  const pg = document.getElementById('pg');
+  if (isMobile) {
+    pg.textContent = mIdx === 0 ? 'COVER' : (mIdx === PAGES.length - 1 ? 'BACK' : (mIdx + 1) + ' / ' + PAGES.length);
+  } else {
+    pg.textContent = pos === 0 ? 'COVER' : (pos === nSheets ? 'BACK' : (2*pos) + ' – ' + (2*pos+1) + ' / ' + PAGES.length);
+  }
+}
+function next(){
+  if (isMobile) { if (mIdx < PAGES.length - 1) { mIdx++; renderMobile(); } }
+  else if (pos < nSheets) { const s = document.getElementById('sheet'+pos); s.style.zIndex = nSheets + 2; pos++; renderBook(); setTimeout(zorder, 1000); }
+  counter();
+}
+function prev(){
+  if (isMobile) { if (mIdx > 0) { mIdx--; renderMobile(); } }
+  else if (pos > 0) { pos--; const s = document.getElementById('sheet'+pos); s.style.zIndex = nSheets + 2; renderBook(); setTimeout(zorder, 1000); }
+  counter();
+}
+document.addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === ' ') next();
+  if (e.key === 'ArrowLeft') prev();
+});
+
+/* ----- touch swipe (mobile + desktop) ----- */
+let tx = null, ty = null;
+document.addEventListener('touchstart', e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+document.addEventListener('touchend', e => {
+  if (tx === null) return;
+  const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+  if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) { dx < 0 ? next() : prev(); }
+  tx = ty = null;
+}, { passive: true });
+
+/* ----- layout ----- */
+function fit(){
+  isMobile = window.innerWidth < 720 || (window.innerHeight > window.innerWidth && window.innerWidth < 1000);
+  document.body.classList.toggle('mobile', isMobile);
+  if (isMobile) {
+    const availW = window.innerWidth - 28, availH = window.innerHeight - 200;
+    const scale = Math.min(availW / 850, availH / 1100);
+    const w = Math.floor(850 * scale), h = Math.floor(1100 * scale);
+    const m = document.getElementById('mstage');
+    m.style.width = w + 'px'; m.style.height = h + 'px';
+    document.getElementById('hint').textContent = 'SWIPE TO TURN THE PAGE';
+    renderMobile();
+  } else {
+    const availW = window.innerWidth - 60, availH = window.innerHeight - 210;
+    const scale = Math.min(availW / 850, availH / 550, 1.25);
+    document.documentElement.style.setProperty('--w', Math.floor(425 * scale) + 'px');
+    document.documentElement.style.setProperty('--h', Math.floor(550 * scale) + 'px');
+    document.getElementById('hint').textContent = 'CLICK OR USE ARROW KEYS TO TURN THE PAGE';
+    renderBook();
+  }
+  counter();
+}
+window.addEventListener('resize', fit);
+fit(); zorder(); renderBook(); renderMobile(); counter();
+</script>
+</body>
+</html>
